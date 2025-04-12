@@ -53,26 +53,19 @@
       justify-content: center;
       align-items: center;
       gap: 15px;
+      opacity: 0;
+      transition: opacity 1s ease;
       z-index: 3;
       padding: 0 20px;
       overflow-x: auto;
     }
 
+    .buttons-container.enabled {
+      opacity: 1;
+    }
+
     .buttons-container::-webkit-scrollbar {
       display: none;
-    }
-
-    /* ESTADO DESACTIVADO: sin clics ni visibilidad */
-    .buttons-container.disabled {
-      pointer-events: none;
-      opacity: 0;
-    }
-
-    /* ESTADO ACTIVADO: visible y funcional */
-    .buttons-container.enabled {
-      pointer-events: auto;
-      opacity: 1;
-      transition: opacity 1s ease;
     }
 
     .button-wrapper {
@@ -175,38 +168,36 @@
 </head>
 <body oncontextmenu="return false">
 
-  <!-- VIDEO PRINCIPAL -->
+  <!-- 🔁 VIDEO PRINCIPAL -->
   <video id="video" src="assets/video.mp4" playsinline muted controlsList="nodownload"></video>
 
-  <!-- VIDEO DE FONDO -->
+  <!-- 🔁 VIDEO DE FONDO -->
   <video id="pagina2" loop muted autoplay controlsList="nodownload">
     <source src="assets/video2.mp4" type="video/mp4" />
     Tu navegador no soporta el formato de video.
   </video>
 
-  <!-- AUDIO DE FONDO -->
+  <!-- 🔁 AUDIO DE FONDO -->
   <audio id="audio" loop>
     <source src="assets/music.mp3" type="audio/mpeg" />
     Tu navegador no soporta el formato de audio.
   </audio>
 
-  <!-- BOTONES -->
+  <!-- 🔁 BOTONES -->
   <div class="buttons-container disabled" id="buttons-container">
-
     <!-- Botón 1 -->
     <div class="button-wrapper">
-      <a href="https://www.google.com/maps" target="_blank">
+      <a href="https://www.google.com/maps" target="_blank" class="inactive-link">
         <img src="assets/salon.png" alt="Salón" class="button-img" />
       </a>
     </div>
 
     <!-- Botón 2 -->
     <div class="button-wrapper">
-      <a href="https://wa.me/your-whatsapp-number" target="_blank">
+      <a href="https://wa.me/your-whatsapp-number" target="_blank" class="inactive-link">
         <img src="assets/ceremonia.png" alt="Ceremonia" class="button-img" />
       </a>
     </div>
-
   </div>
 
   <script>
@@ -214,10 +205,20 @@
     const pagina2 = document.getElementById("pagina2");
     const audio = document.getElementById("audio");
     const buttonsContainer = document.getElementById("buttons-container");
+    const allLinks = document.querySelectorAll(".inactive-link");
+
+    // Bloquear clics en los enlaces hasta que termine el video
+    allLinks.forEach(link => {
+      link.addEventListener("click", function (e) {
+        if (this.classList.contains("inactive-link")) {
+          e.preventDefault();
+        }
+      });
+    });
 
     video.addEventListener("loadeddata", () => {
       video.play();
-      video.pause(); // Autoplay en algunos dispositivos necesita interacción
+      video.pause();
     });
 
     video.addEventListener("click", () => {
@@ -233,13 +234,16 @@
         pagina2.classList.add("visible");
         audio.play();
 
-        // ACTIVAR BOTONES
-        buttonsContainer.classList.remove("disabled");
+        // Activar botones
         buttonsContainer.classList.add("enabled");
+
+        // Activar enlaces
+        allLinks.forEach(link => {
+          link.classList.remove("inactive-link");
+        });
       }, 1000);
     });
 
-    // Desactivar clic derecho
     document.addEventListener('contextmenu', event => event.preventDefault());
   </script>
 
