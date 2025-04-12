@@ -53,8 +53,6 @@
       justify-content: center;
       align-items: center;
       gap: 15px;
-      opacity: 0;
-      transition: opacity 1s ease;
       z-index: 3;
       padding: 0 20px;
       overflow-x: auto;
@@ -62,6 +60,19 @@
 
     .buttons-container::-webkit-scrollbar {
       display: none;
+    }
+
+    /* ESTADO DESACTIVADO: sin clics ni visibilidad */
+    .buttons-container.disabled {
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* ESTADO ACTIVADO: visible y funcional */
+    .buttons-container.enabled {
+      pointer-events: auto;
+      opacity: 1;
+      transition: opacity 1s ease;
     }
 
     .button-wrapper {
@@ -73,7 +84,7 @@
     }
 
     .button-img {
-      width: 120px;
+      width: 60px;
       height: auto;
       cursor: pointer;
       transition: opacity 0.3s ease;
@@ -145,60 +156,56 @@
     /* RESPONSIVE */
     @media (max-width: 480px) {
       .button-img {
-        width: 80px;
+        width: 40px;
       }
     }
 
     @media (min-width: 481px) and (max-width: 768px) {
       .button-img {
-        width: 100px;
+        width: 55px;
       }
     }
 
     @media (min-width: 769px) {
       .button-img {
-        width: 120px;
+        width: 60px;
       }
     }
   </style>
 </head>
 <body oncontextmenu="return false">
 
-  <!-- 🔁 VIDEO PRINCIPAL: Reemplaza la ruta del archivo aquí -->
+  <!-- VIDEO PRINCIPAL -->
   <video id="video" src="assets/video.mp4" playsinline muted controlsList="nodownload"></video>
 
-  <!-- 🔁 VIDEO DE FONDO (página 2): Reemplaza la ruta del archivo aquí -->
+  <!-- VIDEO DE FONDO -->
   <video id="pagina2" loop muted autoplay controlsList="nodownload">
     <source src="assets/video2.mp4" type="video/mp4" />
     Tu navegador no soporta el formato de video.
   </video>
 
-  <!-- 🔁 AUDIO DE FONDO: Reemplaza el archivo de música aquí -->
+  <!-- AUDIO DE FONDO -->
   <audio id="audio" loop>
     <source src="assets/music.mp3" type="audio/mpeg" />
     Tu navegador no soporta el formato de audio.
   </audio>
 
-  <!-- 🔁 BOTONES: Personaliza los enlaces y las imágenes de los íconos aquí -->
-  <div class="buttons-container" id="buttons-container">
+  <!-- BOTONES -->
+  <div class="buttons-container disabled" id="buttons-container">
 
-    <!-- Botón 1: Salón (enlace a mapa) -->
+    <!-- Botón 1 -->
     <div class="button-wrapper">
       <a href="https://www.google.com/maps" target="_blank">
         <img src="assets/salon.png" alt="Salón" class="button-img" />
       </a>
     </div>
 
-    <!-- Botón 2: Ceremonia (enlace a WhatsApp o info) -->
+    <!-- Botón 2 -->
     <div class="button-wrapper">
       <a href="https://wa.me/your-whatsapp-number" target="_blank">
         <img src="assets/ceremonia.png" alt="Ceremonia" class="button-img" />
       </a>
     </div>
-
-    
-  </div>
-
 
   </div>
 
@@ -210,7 +217,7 @@
 
     video.addEventListener("loadeddata", () => {
       video.play();
-      video.pause();
+      video.pause(); // Autoplay en algunos dispositivos necesita interacción
     });
 
     video.addEventListener("click", () => {
@@ -225,18 +232,14 @@
         video.style.display = "none";
         pagina2.classList.add("visible");
         audio.play();
-        buttonsContainer.style.opacity = "1";
+
+        // ACTIVAR BOTONES
+        buttonsContainer.classList.remove("disabled");
+        buttonsContainer.classList.add("enabled");
       }, 1000);
     });
 
-    function openModal(id) {
-      document.getElementById(id).classList.add('active');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-    }
-
+    // Desactivar clic derecho
     document.addEventListener('contextmenu', event => event.preventDefault());
   </script>
 
