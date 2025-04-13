@@ -168,7 +168,7 @@
   <video id="video" src="assets/video.mp4" playsinline muted controlsList="nodownload"></video>
 
   <!-- 🔁 VIDEO DE FONDO -->
-  <video id="pagina2" loop muted autoplay controlsList="nodownload">
+  <video id="pagina2" loop muted controlsList="nodownload">
     <source src="assets/video2.mp4" type="video/mp4" />
     Tu navegador no soporta el formato de video.
   </video>
@@ -203,7 +203,7 @@
     const buttonsContainer = document.getElementById("buttons-container");
     const allLinks = document.querySelectorAll(".inactive-link");
 
-    // Evitar clics antes de tiempo
+    // Bloquear clics en enlaces antes de tiempo
     allLinks.forEach(link => {
       link.addEventListener("click", function (e) {
         if (this.classList.contains("inactive-link")) {
@@ -212,43 +212,53 @@
       });
     });
 
-    // Forzar carga del video sin autoplay
+    // Forzar carga inicial del video sin autoplay
     video.addEventListener("loadeddata", () => {
       video.play();
       video.pause();
     });
 
-    // Usuario hace clic → inicia todo
+    // Iniciar al hacer clic
     video.addEventListener("click", () => {
       video.muted = false;
       video.play();
       audio.play();
     });
 
-    // Al terminar el primer video
+    // Al terminar el video principal
     video.addEventListener("ended", () => {
       video.style.opacity = "0";
+
       setTimeout(() => {
         video.style.display = "none";
         pagina2.classList.add("visible");
 
-        // Forzamos que se reproduzca el segundo video (en algunos móviles necesita esto)
-        pagina2.play();
+        // ⚠️ Forzar recarga del video para evitar problemas de caché
+        pagina2.src = "assets/video2.mp4?t=" + new Date().getTime();
+        pagina2.load();
 
-        // Activamos audio (ya debería estar sonando)
+        // Reproducir el segundo video con delay leve
+        setTimeout(() => {
+          pagina2.play().then(() => {
+            console.log("Video 2 se está reproduciendo correctamente.");
+          }).catch((err) => {
+            console.error("Error al reproducir video 2:", err);
+          });
+        }, 300);
+
+        // Reproducir audio
         audio.play();
 
-        // Activar botones
+        // Activar botones y enlaces
         buttonsContainer.classList.add("enabled");
-
-        // Activar enlaces
         allLinks.forEach(link => {
           link.classList.remove("inactive-link");
         });
+
       }, 1000);
     });
 
-    // Prevención del menú contextual (clic derecho)
+    // Bloquear clic derecho
     document.addEventListener('contextmenu', event => event.preventDefault());
   </script>
 
