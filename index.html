@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Intro Interactiva</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,15 +25,15 @@
       object-fit: cover;
     }
 
-    #video {
-      z-index: 1;
+    #video1 {
+      z-index: 2;
       cursor: pointer;
       opacity: 1;
       transition: opacity 1s ease;
     }
 
     #video2 {
-      z-index: 0;
+      z-index: 1;
       opacity: 0;
       transition: opacity 1s ease;
     }
@@ -58,10 +58,6 @@
       opacity: 1;
     }
 
-    .buttons-container::-webkit-scrollbar {
-      display: none;
-    }
-
     .button-wrapper {
       display: flex;
       flex-direction: column;
@@ -72,7 +68,6 @@
 
     .button-img {
       width: 60px;
-      height: auto;
       cursor: pointer;
       transition: opacity 0.3s ease;
     }
@@ -82,43 +77,35 @@
     }
 
     @media (max-width: 480px) {
-      .button-img {
-        width: 40px;
-      }
+      .button-img { width: 40px; }
     }
-
     @media (min-width: 481px) and (max-width: 768px) {
-      .button-img {
-        width: 55px;
-      }
+      .button-img { width: 55px; }
     }
-
     @media (min-width: 769px) {
-      .button-img {
-        width: 60px;
-      }
+      .button-img { width: 60px; }
     }
   </style>
 </head>
 <body oncontextmenu="return false">
 
-  <!-- 🎬 Video Principal -->
-  <video id="video" src="assets/video.mp4" playsinline muted controlsList="nodownload"></video>
-
-  <!-- 🎬 Video 2 (de fondo, oculto al inicio) -->
-  <video id="video2" loop muted playsinline controlsList="nodownload" preload="auto">
-    <source src="assets/video2.mp4?t=<?=Date.now()?>" type="video/mp4" />
-    Tu navegador no soporta el formato de video.
+  <!-- Video principal -->
+  <video id="video1" playsinline muted preload="auto" controlsList="nodownload">
+    <source src="assets/video.mp4" type="video/mp4" />
   </video>
 
-  <!-- 🔊 Audio -->
-  <audio id="audio" loop>
+  <!-- Segundo video oculto al inicio -->
+  <video id="video2" playsinline muted loop preload="auto" controlsList="nodownload">
+    <source src="assets/video2.mp4" type="video/mp4" />
+  </video>
+
+  <!-- Audio de fondo -->
+  <audio id="audio" loop preload="auto">
     <source src="assets/music.mp3" type="audio/mpeg" />
-    Tu navegador no soporta el formato de audio.
   </audio>
 
-  <!-- 🧭 Botones -->
-  <div class="buttons-container disabled" id="buttons-container">
+  <!-- Botones -->
+  <div class="buttons-container" id="buttons-container">
     <div class="button-wrapper">
       <a href="https://www.google.com/maps" target="_blank" class="inactive-link">
         <img src="assets/salon.png" alt="Salón" class="button-img" />
@@ -132,13 +119,13 @@
   </div>
 
   <script>
-    const video1 = document.getElementById("video");
+    const video1 = document.getElementById("video1");
     const video2 = document.getElementById("video2");
     const audio = document.getElementById("audio");
     const buttonsContainer = document.getElementById("buttons-container");
     const allLinks = document.querySelectorAll(".inactive-link");
 
-    // Bloquear clics prematuros
+    // Bloquear links al inicio
     allLinks.forEach(link => {
       link.addEventListener("click", function (e) {
         if (this.classList.contains("inactive-link")) {
@@ -147,44 +134,33 @@
       });
     });
 
-    // Precargar video1
-    video1.addEventListener("loadeddata", () => {
-      video1.play();
-      video1.pause();
-    });
-
-    // Inicia al hacer clic
+    // Clic en video1 inicia todo
     video1.addEventListener("click", () => {
       video1.muted = false;
       video1.play();
       audio.play();
     });
 
-    // Cuando termina el primer video
+    // Al terminar video1, mostrar video2 sin parpadeo
     video1.addEventListener("ended", () => {
-      // Reproduce video2 desde ya
       video2.currentTime = 0;
-      video2.play().catch(err => console.warn("Video2 error:", err));
+      video2.play().then(() => {
+        video2.style.opacity = 1;
+        video1.style.opacity = 0;
 
-      // Hacer fade in al video2
-      video2.style.opacity = "1";
+        setTimeout(() => {
+          video1.style.display = "none";
 
-      // Hacer fade out al video1
-      video1.style.opacity = "0";
-
-      // Luego de transición, ocultar video1 completamente
-      setTimeout(() => {
-        video1.style.display = "none";
-
-        // Activar botones y enlaces
-        buttonsContainer.classList.add("enabled");
-        allLinks.forEach(link => {
-          link.classList.remove("inactive-link");
-        });
-      }, 1000); // tiempo de transición
+          // Activar botones y links
+          buttonsContainer.classList.add("enabled");
+          allLinks.forEach(link => link.classList.remove("inactive-link"));
+        }, 1000);
+      }).catch(err => {
+        console.error("Error al reproducir video2:", err);
+      });
     });
 
-    // Desactivar menú derecho
+    // Desactivar clic derecho
     document.addEventListener('contextmenu', e => e.preventDefault());
   </script>
 
