@@ -167,12 +167,6 @@
   <!-- 🔁 VIDEO PRINCIPAL -->
   <video id="video" src="assets/video.mp4" playsinline muted controlsList="nodownload"></video>
 
-  <!-- 🔁 VIDEO DE FONDO -->
-  <video id="pagina2" loop muted controlsList="nodownload">
-    <source src="assets/video2.mp4" type="video/mp4" />
-    Tu navegador no soporta el formato de video.
-  </video>
-
   <!-- 🔁 AUDIO DE FONDO -->
   <audio id="audio" loop>
     <source src="assets/music.mp3" type="audio/mpeg" />
@@ -198,12 +192,11 @@
 
   <script>
     const video = document.getElementById("video");
-    const pagina2 = document.getElementById("pagina2");
     const audio = document.getElementById("audio");
     const buttonsContainer = document.getElementById("buttons-container");
     const allLinks = document.querySelectorAll(".inactive-link");
 
-    // Bloquear clics en enlaces antes de tiempo
+    // Bloquear enlaces hasta que se activen
     allLinks.forEach(link => {
       link.addEventListener("click", function (e) {
         if (this.classList.contains("inactive-link")) {
@@ -212,44 +205,63 @@
       });
     });
 
-    // Forzar carga inicial del video sin autoplay
+    // Preparar primer video
     video.addEventListener("loadeddata", () => {
       video.play();
       video.pause();
     });
 
-    // Iniciar al hacer clic
+    // Al hacer clic en el primer video
     video.addEventListener("click", () => {
       video.muted = false;
       video.play();
       audio.play();
     });
 
-    // Al terminar el video principal
+    // Cuando termina el primer video
     video.addEventListener("ended", () => {
       video.style.opacity = "0";
 
       setTimeout(() => {
         video.style.display = "none";
-        pagina2.classList.add("visible");
 
-        // ⚠️ Forzar recarga del video para evitar problemas de caché
-        pagina2.src = "assets/video2.mp4?t=" + new Date().getTime();
-        pagina2.load();
+        // Crear un nuevo video dinámicamente
+        const newVideo = document.createElement("video");
+        newVideo.id = "pagina2";
+        newVideo.loop = true;
+        newVideo.muted = true;
+        newVideo.autoplay = true;
+        newVideo.controlsList = "nodownload";
+        newVideo.style.position = "absolute";
+        newVideo.style.top = 0;
+        newVideo.style.left = 0;
+        newVideo.style.width = "100%";
+        newVideo.style.height = "100%";
+        newVideo.style.objectFit = "cover";
+        newVideo.style.zIndex = 2;
+        newVideo.classList.add("visible");
 
-        // Reproducir el segundo video con delay leve
+        const source = document.createElement("source");
+        source.src = "assets/video2.mp4?t=" + new Date().getTime(); // Forzar nueva carga
+        source.type = "video/mp4";
+        newVideo.appendChild(source);
+
+        document.body.appendChild(newVideo);
+
+        newVideo.load();
+
         setTimeout(() => {
-          pagina2.play().then(() => {
-            console.log("Video 2 se está reproduciendo correctamente.");
-          }).catch((err) => {
-            console.error("Error al reproducir video 2:", err);
+          newVideo.play().then(() => {
+            console.log("Nuevo video 2 se está reproduciendo.");
+          }).catch(err => {
+            console.error("Error al reproducir el nuevo video:", err);
           });
         }, 300);
 
-        // Reproducir audio
+        // Activar audio
         audio.play();
 
-        // Activar botones y enlaces
+        // Activar botones
         buttonsContainer.classList.add("enabled");
         allLinks.forEach(link => {
           link.classList.remove("inactive-link");
