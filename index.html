@@ -87,10 +87,6 @@
       opacity: 0.8;
     }
 
-    #audio, #pagina2 {
-      display: none;
-    }
-
     /* MODALS */
     .modal {
       position: fixed;
@@ -207,7 +203,7 @@
     const buttonsContainer = document.getElementById("buttons-container");
     const allLinks = document.querySelectorAll(".inactive-link");
 
-    // Bloquear clics en los enlaces hasta que termine el video
+    // Evitar clics antes de tiempo
     allLinks.forEach(link => {
       link.addEventListener("click", function (e) {
         if (this.classList.contains("inactive-link")) {
@@ -216,22 +212,30 @@
       });
     });
 
+    // Forzar carga del video sin autoplay
     video.addEventListener("loadeddata", () => {
       video.play();
       video.pause();
     });
 
+    // Usuario hace clic → inicia todo
     video.addEventListener("click", () => {
       video.muted = false;
       video.play();
       audio.play();
     });
 
+    // Al terminar el primer video
     video.addEventListener("ended", () => {
       video.style.opacity = "0";
       setTimeout(() => {
         video.style.display = "none";
         pagina2.classList.add("visible");
+
+        // Forzamos que se reproduzca el segundo video (en algunos móviles necesita esto)
+        pagina2.play();
+
+        // Activamos audio (ya debería estar sonando)
         audio.play();
 
         // Activar botones
@@ -244,6 +248,7 @@
       }, 1000);
     });
 
+    // Prevención del menú contextual (clic derecho)
     document.addEventListener('contextmenu', event => event.preventDefault());
   </script>
 
